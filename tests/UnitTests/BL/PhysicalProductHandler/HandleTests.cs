@@ -1,9 +1,8 @@
-using System;
 using Xunit;
 
-namespace IntegrationTests
+namespace UnitTests.BL.PhysicalProductHandler
 {
-    public class UnitTest1
+    public class HandleTests
     {
         [Fact]
         public void Test1()
