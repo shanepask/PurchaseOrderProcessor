@@ -138,7 +138,6 @@ classDiagram
 	class PurchaseOrder {
 		<<model>>
 		+Id: int
-		+Total : decimal 
 		+Items : IEnumerable<string>
 	}
 	
@@ -157,14 +156,13 @@ classDiagram
 		
 	class IMediator{
 		<<interface>>
-		+LineItemHandlers: IEnumerable<Type>
-		+ResultHandlers: IEnumerable<Type>
 		+ProcessAsync(int, PurchaseOrder)ShippingSlip
 	}
 	
 	IMediator--|>Mediator
 	class Mediator {
 		<<service>>
+		+ctor(ServiceProvider)
 	}
 
 	Mediator..IContext
@@ -175,19 +173,21 @@ classDiagram
 	IContext--|>Context
 	class Context {
 	}
-	
-	IContext..>ILineItemHandler
+	IContext..>IHandler
+	class IHandler{
+		<<interface>>
+	}
+	IHandler..>ILineItemHandler
 	class ILineItemHandler{
 		<<interface>>
 		+HandleAsync(int, string, Context)
 	}
 	
-	IContext..>IResultHandler
+	IHandler..>IResultHandler
 	class IResultHandler{
 		<<interface>>
 		+HandleAsync(int, Context)
 	}
-
 	ILineItemHandler--|>PhysicalProductHandler
 	class PhysicalProductHandler{
 	}
@@ -208,17 +208,23 @@ classDiagram
 	ICustomerApiClient--|>CustomerApiClient
 	class CustomerApiClient{
 	}
+```
+```mermaid
+classDiagram
 	
 	class LineItemHelper{
 		~IsPhysicalProduct(string)bool
 		~IsMembershipProduct(string)bool
 	}
+
+	class ServiceExtentions{
+		+AddPurchaseOrderProcessor(IServiceCollection services)IServiceCollection 
+		+AddHandler(ServiceCollection services)IServiceCollection 
+	}
 ```
 
 The controller is the frameworks API request handler.
-The mediator is a singleton service as this will also contain the registry for the handlers.
-The frameworks startup will include the handler registry when the mediator service is instantiated
-The handers are instantiated for each line item they handle.
+The mediator is and handlers will be part of the service collection and supplied by the provider.
 The Customer API client has been added to ensure the single responsibility of the handler and to make mocking easier.
 Adding new product types should not require any modifications but only additions.
 An interface for the context is used to ensure we only depend on abstractions.

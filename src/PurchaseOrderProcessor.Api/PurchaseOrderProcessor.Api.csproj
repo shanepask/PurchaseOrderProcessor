@@ -6,4 +6,13 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PurchaseOrderProcessor.Domain\PurchaseOrderProcessor.Domain.csproj" />
+    <ProjectReference Include="..\PurchaseOrderProcessor.Infrastructure\PurchaseOrderProcessor.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

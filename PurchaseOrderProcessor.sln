@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseOrderProcessor.Api", "src\PurchaseOrderProcessor.Api\PurchaseOrderProcessor.Api.csproj", "{B6E5BFA5-D72F-460A-84E6-419E6A0D6655}"
 EndProject
@@ -9,14 +9,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{30471C2B-3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{CBF06D38-F30E-4EF4-94FE-75CFBD304E22}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\Users\MAIN-PC\Desktop\Design Document.md = ..\..\Users\MAIN-PC\Desktop\Design Document.md
+		documentation\Design Document.md = documentation\Design Document.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F4DF7A30-2536-41FE-A2FA-BDD1F9CF9210}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{AEFD8E43-B7AF-46E0-B291-A9E071369E77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{AEFD8E43-B7AF-46E0-B291-A9E071369E77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{CCDED350-5CB7-495B-A0D3-3F1B61F68512}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{CCDED350-5CB7-495B-A0D3-3F1B61F68512}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchaseOrderProcessor.Domain", "src\PurchaseOrderProcessor.Domain\PurchaseOrderProcessor.Domain.csproj", "{129AFC6F-B346-4961-9697-07F49E3BA8DC}"
 EndProject
