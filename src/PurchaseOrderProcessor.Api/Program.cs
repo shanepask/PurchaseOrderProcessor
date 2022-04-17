@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -7,7 +8,10 @@ namespace PurchaseOrderProcessor.Api
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+
+            if (!args.Contains("skipHost"))
+                host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using PurchaseOrderProcessor.Domain.Models;
 
-namespace PurchaseOrderProcessor.Domain.Mediator
+namespace PurchaseOrderProcessor.Domain.Mediation
 {
-    internal class Context : IContext
+    public interface IContext
     {
-        public List<string> PhysicalProducts { get; } = new();
+        public List<string> PhysicalProducts { get; }
         public ShippingSlip ShippingSlip { get; set; }
     }
 }

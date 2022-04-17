@@ -22,4 +22,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PurchaseOrderProcessor.Api\PurchaseOrderProcessor.Api.csproj" />
+    <ProjectReference Include="..\..\src\PurchaseOrderProcessor.Domain\PurchaseOrderProcessor.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PurchaseOrderProcessor.Infrastructure\PurchaseOrderProcessor.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

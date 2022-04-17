@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using PurchaseOrderProcessor.Domain.Mediator;
+using PurchaseOrderProcessor.Domain.Mediation;
 
 namespace PurchaseOrderProcessor.Domain
 {

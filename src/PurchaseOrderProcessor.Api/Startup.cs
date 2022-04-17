@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PurchaseOrderProcessor.Domain;
+using PurchaseOrderProcessor.Domain.Handlers;
 
 namespace PurchaseOrderProcessor.Api
 {
@@ -25,6 +27,11 @@ namespace PurchaseOrderProcessor.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PurchaseOrderProcessor.Api", Version = "v1" });
             });
+
+            services.AddPurchaseOrderProcessor()
+                .AddHandler<MembershipHandler>()
+                .AddHandler<PhysicalProductHandler>()
+                .AddHandler<ShippingSlipHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
