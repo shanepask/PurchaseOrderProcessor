@@ -21,6 +21,7 @@ namespace PurchaseOrderProcessor.Infrastructure.Clients
         public class Settings
         {
             public string BaseUrl { get; set; }
+            public bool MockHostForDemo { get; set; }
         }
 
         private readonly HttpClient _httpClient;

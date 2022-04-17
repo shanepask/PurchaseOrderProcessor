@@ -13,10 +13,9 @@ public class MembershipHandler : ILineItemHandler
 
     public MembershipHandler(ICustomerClient client) => _client = client;
 
-    public Task HandleAsync(int customerId, string lineItem, IContext context, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(int customerId, string lineItem, IContext context, CancellationToken cancellationToken = default)
     {
         if (LineItemHelper.IsMembershipProduct(lineItem))
-            _client.MembershipUpdateAsync(customerId, lineItem, cancellationToken);
-        return Task.CompletedTask;
+            await _client.MembershipUpdateAsync(customerId, lineItem, cancellationToken);
     }
 }

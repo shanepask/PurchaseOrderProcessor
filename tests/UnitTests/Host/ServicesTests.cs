@@ -17,18 +17,21 @@ namespace UnitTests.Host
         class HandlerMock1 : IHandler { }
         class HandlerMock2 : IHandler { }
 
-        [Fact]
-        public void AddPurchaseOrderProcessor_ExpectsFailure()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddPurchaseOrderProcessor_ExpectsFailure(bool useDemoMock)
         {
             //arrange
             var serviceCollection = new ServiceCollection();
-            var optionsMock = new Mock<IOptions<CustomerApiClient.Settings>>();
+            var settings = new CustomerApiClient.Settings { MockHostForDemo = useDemoMock };
+            var options = Options.Create(settings);
 
             //act
-            serviceCollection.AddPurchaseOrderProcessor(optionsMock.Object);
+            serviceCollection.AddPurchaseOrderProcessor(options);
 
             //assert
-            serviceCollection.Count.Should().Be(21);
+            serviceCollection.Count.Should().BeInRange(21,22);
         }
         
         [Fact]
