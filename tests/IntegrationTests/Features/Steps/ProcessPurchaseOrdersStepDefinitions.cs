@@ -8,21 +8,20 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using IntegrationTests.Controller.Hosts;
 using PurchaseOrderProcessor.Api;
-using PurchaseOrderProcessor.Domain.Clients;
 using PurchaseOrderProcessor.Domain.Models;
 using TechTalk.SpecFlow;
 
-namespace IntegrationTests
+namespace IntegrationTests.Features.Steps
 {
     [Binding]
     public class ProcessPurchaseOrdersStepDefinitions
     {
-        public const string FeatureName = "PPOSteps";
-        public const string PurchaseOrderKey = $"{FeatureName}_{nameof(PurchaseOrder)}";
-        public const string PurchaseCustomerId = $"{FeatureName}_CustoemrId";
-        public const string PurchaseResponse = $"{FeatureName}_Response";
-        public const string PurchaseShippingSlip = $"{FeatureName}_{nameof(ShippingSlip)}";
-        public const string PurchaseHostFactory = $"{FeatureName}_{nameof(ProcessorHostFactory<Startup>)}";
+        private const string FEATURE_NAME = "PPOSteps";
+        private const string PURCHASE_ORDER_KEY = $"{FEATURE_NAME}_{nameof(PurchaseOrder)}";
+        private const string PURCHASE_CUSTOMER_ID = $"{FEATURE_NAME}_CustoemrId";
+        private const string PURCHASE_RESPONSE = $"{FEATURE_NAME}_Response";
+        private const string PURCHASE_SHIPPING_SLIP = $"{FEATURE_NAME}_{nameof(ShippingSlip)}";
+        private const string PURCHASE_HOST_FACTORY = $"{FEATURE_NAME}_{nameof(ProcessorHostFactory<Startup>)}";
 
         private readonly ScenarioContext _scenarioContext;
 
@@ -33,28 +32,28 @@ namespace IntegrationTests
         }
 
         [Given(@"I a purchase with the ID of ""([^""]*)"" for customer ""([^""]*)"" has the line items")]
-        public void GivenIAPurchaseWithTheIDOfForCustomerHasTheLineItems(int poId, int customerid, Table poLines)
+        public void GivenIAPurchaseWithTheIDOfForCustomerHasTheLineItems(int poId, int customerId, Table poLines)
         {
-            _scenarioContext.TryAdd(PurchaseOrderKey, new PurchaseOrder { Id = poId, Items = poLines.Rows.Select(r => r[0]) }).Should().BeTrue();
-            _scenarioContext.TryAdd(PurchaseCustomerId, customerid).Should().BeTrue();
+            _scenarioContext.TryAdd(PURCHASE_ORDER_KEY, new PurchaseOrder { Id = poId, Items = poLines.Rows.Select(r => r[0]) }).Should().BeTrue();
+            _scenarioContext.TryAdd(PURCHASE_CUSTOMER_ID, customerId).Should().BeTrue();
         }
 
         [When(@"It is processed")]
         public async Task WhenItIsProcessed()
         {
-            var po = _scenarioContext.Get<PurchaseOrder>(PurchaseOrderKey);
-            var cid = _scenarioContext.Get<int>(PurchaseCustomerId);
+            var po = _scenarioContext.Get<PurchaseOrder>(PURCHASE_ORDER_KEY);
+            var cid = _scenarioContext.Get<int>(PURCHASE_CUSTOMER_ID);
             var factory = new ProcessorHostFactory<Startup>();
             var client = factory.CreateClient();
-            _scenarioContext.TryAdd(PurchaseHostFactory, factory).Should().BeTrue();
+            _scenarioContext.TryAdd(PURCHASE_HOST_FACTORY, factory).Should().BeTrue();
             var resp = await client.PostAsync($"{cid}/purchase-orders", new StringContent(JsonSerializer.Serialize(po), Encoding.UTF8, "application/json"));
-            _scenarioContext.TryAdd(PurchaseResponse, resp).Should().BeTrue();
+            _scenarioContext.TryAdd(PURCHASE_RESPONSE, resp).Should().BeTrue();
         }
 
         [Then(@"It is successful")]
         public void ThenItIsSuccessful()
         {
-            var resp = _scenarioContext.Get<HttpResponseMessage>(PurchaseResponse);
+            var resp = _scenarioContext.Get<HttpResponseMessage>(PURCHASE_RESPONSE);
             resp.IsSuccessStatusCode.Should().BeTrue();
         }
 
@@ -62,12 +61,12 @@ namespace IntegrationTests
         public async Task ThenItProducesAShippingSlip(Table shippingSlipLines)
         {
             ThenItIsSuccessful();
-            var resp = _scenarioContext.Get<HttpResponseMessage>(PurchaseResponse);
+            var resp = _scenarioContext.Get<HttpResponseMessage>(PURCHASE_RESPONSE);
             var slip = await resp.Content.ReadFromJsonAsync<ShippingSlip>();
 
             slip.Should().NotBeNull();
             slip.Items.Should().HaveCount(shippingSlipLines.RowCount);
-            _scenarioContext.TryAdd(PurchaseShippingSlip, slip).Should().BeTrue();
+            _scenarioContext.TryAdd(PURCHASE_SHIPPING_SLIP, slip).Should().BeTrue();
 
             var testLines = shippingSlipLines.Rows.Select(r => new ShippingSlipItem { Description = r[0], Quantity = int.Parse(r[1]) });
             slip.Items.Should().BeEquivalentTo(testLines);
@@ -76,11 +75,11 @@ namespace IntegrationTests
         [Then(@"The customers current membership is ""([^""]*)""")]
         public async Task ThenTheCustomersCurrentMembershipIs(string customerState)
         {
-            var cid = _scenarioContext.Get<int>(PurchaseCustomerId);
-            var factory = _scenarioContext.Get<ProcessorHostFactory<Startup>>(PurchaseHostFactory);
+            var cid = _scenarioContext.Get<int>(PURCHASE_CUSTOMER_ID);
+            var factory = _scenarioContext.Get<ProcessorHostFactory<Startup>>(PURCHASE_HOST_FACTORY);
             var message = factory.CustomerApiMessages.Messages.LastOrDefault(m =>
                 m.Method == HttpMethod.Put &&
-                m.RequestUri.AbsolutePath == $"/customers/{cid}/membership");
+                m.RequestUri?.AbsolutePath == $"/customers/{cid}/membership");
             message.Should().NotBeNull();
             (await message.Content.ReadAsStringAsync()).Contains(customerState);
         }
@@ -89,7 +88,7 @@ namespace IntegrationTests
         public async Task ThenItProducesNoShippingSlip()
         {
             ThenItIsSuccessful();
-            var resp = _scenarioContext.Get<HttpResponseMessage>(PurchaseResponse);
+            var resp = _scenarioContext.Get<HttpResponseMessage>(PURCHASE_RESPONSE);
             (await resp.Content.ReadAsStringAsync()).Length.Should().Be(0);
         }
     }

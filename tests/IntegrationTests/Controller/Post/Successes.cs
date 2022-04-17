@@ -72,7 +72,7 @@ namespace IntegrationTests.Controller.Post
 
             //assert
             resp.IsSuccessStatusCode.Should().Be(true);
-            var shippingSlip = (await resp.Content.ReadAsStringAsync()).Length.Should().Be(0);
+            (await resp.Content.ReadAsStringAsync()).Length.Should().Be(0);
         }
     }
 }

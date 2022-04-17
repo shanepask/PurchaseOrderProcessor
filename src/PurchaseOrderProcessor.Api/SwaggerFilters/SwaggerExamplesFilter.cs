@@ -28,6 +28,8 @@ namespace PurchaseOrderProcessor.Api.SwaggerFilters
 		private void AddExample(OpenApiMediaType value, XElement example)
 		{
 			var json = JsonSerializer.Deserialize<object>(example.Value);
+            if (json == null)
+                return;
 			var apiObject = ToApiObject((JsonElement)json);
 			value.Examples.Add(example.Attribute("name")?.Value ?? "Example", new OpenApiExample() { Description = example.Attribute("description")?.Value ?? "No Description Set", Value = apiObject });
 		}

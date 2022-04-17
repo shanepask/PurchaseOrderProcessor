@@ -84,10 +84,6 @@ namespace IntegrationTests.Controller.Post
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             var client = new ProcessorHostFactory<Startup>().CreateClient();
             var customerId = 9393;
-            var purchaseOrder = new PurchaseOrder
-            {
-                Id = 123
-            };
 
             //act
             var resp = await client.PostAsync($"{customerId}/purchase-orders", new StringContent("{ {} }", Encoding.UTF8, "application/json"));

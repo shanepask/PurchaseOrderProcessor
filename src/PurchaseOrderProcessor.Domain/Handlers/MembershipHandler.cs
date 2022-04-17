@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using PurchaseOrderProcessor.Domain.Clients;
 using PurchaseOrderProcessor.Domain.Mediation;
-using PurchaseOrderProcessor.Domain.Models;
 
 namespace PurchaseOrderProcessor.Domain.Handlers;
 

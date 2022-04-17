@@ -64,16 +64,15 @@ namespace UnitTests.Host
         [InlineData("Production")]
         [InlineData("Other")]
         [InlineData("")]
-        [InlineData(null)]
         public void Configure_ExpectsSuccess(string environment)
         {
             //arrange
             var hostMock = new MockWebApplicationFactory<Startup>(environment);
-
             var app = new ApplicationBuilder(hostMock.ServiceProvider);
 
             //act
             var reqDelegate = () => app.Build();
+            hostMock.CreateClient();
 
             //assert
             app.Properties.Count.Should().Be(1);

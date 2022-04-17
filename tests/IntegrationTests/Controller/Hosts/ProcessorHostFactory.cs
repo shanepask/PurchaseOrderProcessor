@@ -9,9 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using PurchaseOrderProcessor.Domain.Clients;
-using PurchaseOrderProcessor.Infrastructure;
 using PurchaseOrderProcessor.Infrastructure.Clients;
 
 namespace IntegrationTests.Controller.Hosts
@@ -35,7 +33,7 @@ namespace IntegrationTests.Controller.Hosts
         {
             builder.ConfigureTestServices(services =>
             {
-                services.AddHttpClient<ICustomerClient, CustomerApiClient>().ConfigurePrimaryHttpMessageHandler(s => CustomerApiMessages);
+                services.AddHttpClient<ICustomerClient, CustomerApiClient>().ConfigurePrimaryHttpMessageHandler(_ => CustomerApiMessages);
             });
         }
     }
