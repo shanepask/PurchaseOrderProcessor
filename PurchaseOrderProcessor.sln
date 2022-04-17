@@ -26,6 +26,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "host", "host", "{1A642DBC-4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "intrastructure", "intrastructure", "{29D0E0F0-7E78-4C83-BCAD-2293D0E2EE17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "containers", "containers", "{1D55ABF4-2375-40C6-8D01-70B773128AB4}"
+	ProjectSection(SolutionItems) = preProject
+		src\PurchaseOrderProcessor.Api\Dockerfile = src\PurchaseOrderProcessor.Api\Dockerfile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
