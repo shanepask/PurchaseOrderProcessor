@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using PurchaseOrderProcessor.Api;
 using PurchaseOrderProcessor.Domain.Clients;
 using PurchaseOrderProcessor.Domain.Mediation;
@@ -14,23 +13,36 @@ namespace UnitTests.Host
 {
     public class StartupTests
     {
+        class MockWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+        {
+            public ServiceProvider ServiceProvider { get; private set; }
+            private string _environment;
+
+            public MockWebApplicationFactory(string environment) => _environment = environment;
+
+            protected override void ConfigureWebHost(IWebHostBuilder builder)
+            {
+                builder.ConfigureServices(services => ServiceProvider = services.BuildServiceProvider());
+                builder.UseEnvironment(_environment);
+            }
+        }
+
         [Fact]
         public void ConfigureServices_ExpectsSuccess()
         {
             //arrange
-            var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
             var serviceCollection = new ServiceCollection();
-            var startup = new Startup(config);
+            var startup = new Startup();
 
             //act
             startup.ConfigureServices(serviceCollection);
             var provider = serviceCollection.BuildServiceProvider();
 
             //assert
-            serviceCollection.Count.Should().BeInRange(10, 50);
-            provider.GetService<IMediator>().Should().NotBeNull();
+            serviceCollection.Count.Should().BeInRange(100, 150);
             provider.GetService<IEnumerable<IHandler>>().Should().HaveCount(3);
-            provider.GetService<IEnumerable<ICustomerClient>>().Should().NotBeNull();
+            provider.GetService<IMediator>().Should().NotBeNull();
+            provider.GetService<ICustomerClient>().Should().NotBeNull();
         }
 
         [Theory]
@@ -44,25 +56,16 @@ namespace UnitTests.Host
         public void Configure_ExpectsSuccess(string environment)
         {
             //arrange
-            var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
             var serviceCollection = new ServiceCollection();
-            var startup = new Startup(config);
-            var hostMock = new Mock<IWebHostEnvironment>();
-
-            hostMock.Setup(h => h.EnvironmentName).Returns(environment);
-
-            startup.ConfigureServices(serviceCollection);
-            var provider = serviceCollection.BuildServiceProvider();
-
-            var app = new ApplicationBuilder(provider);
+            var hostMock = new MockWebApplicationFactory<Startup>(environment);
+            
+            var app = new ApplicationBuilder(hostMock.ServiceProvider);
 
             //act
-            var act = () => startup.Configure(app, hostMock.Object);
             var reqDelegate = () => app.Build();
 
             //assert
-            act.Should().NotThrow();
-            app.Properties.Count.Should().Be(2);
+            app.Properties.Count.Should().Be(1);
             reqDelegate.Should().NotThrow();
         }
     }
