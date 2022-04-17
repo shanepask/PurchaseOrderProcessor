@@ -31,10 +31,10 @@ namespace UnitTests.CustomerClient
             handlerMock.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
-            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object));
+            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost:3000") });
 
             //act
-            var act = () => client.MembershipUpdateAsync(customerId, membership);
+            var act = () => client.MembershipUpdateAsync(customerId, membership, CancellationToken.None);
 
             //assert
             await act.Should().NotThrowAsync();
@@ -47,10 +47,10 @@ namespace UnitTests.CustomerClient
         {
             //arrange
             var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object));
+            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost:3000") });
 
             //act
-            var act = () => client.MembershipUpdateAsync(customerId, membership);
+            var act = () => client.MembershipUpdateAsync(customerId, membership, CancellationToken.None);
 
             //assert
             await act.Should().ThrowAsync<ArgumentException>();
@@ -71,10 +71,10 @@ namespace UnitTests.CustomerClient
             handlerMock.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage { StatusCode = statusCode });
 
-            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object));
+            ICustomerClient client = new CustomerApiClient(new HttpClient(handlerMock.Object) { BaseAddress = new Uri("http://localhost:3000")});
 
             //act
-            var act = () => client.MembershipUpdateAsync(fixture.Create<int>(), fixture.Create<string>());
+            var act = () => client.MembershipUpdateAsync(fixture.Create<int>(), fixture.Create<string>(), CancellationToken.None);
 
             //assert
             await act.Should().ThrowAsync<HttpRequestException>();

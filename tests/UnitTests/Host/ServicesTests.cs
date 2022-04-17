@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-
-using PurchaseOrderProcessor.Domain;
+using Microsoft.Extensions.Options;
+using Moq;
 using PurchaseOrderProcessor.Domain.Mediation;
 using PurchaseOrderProcessor.Infrastructure;
+using PurchaseOrderProcessor.Infrastructure.Clients;
 using Xunit;
 
 namespace UnitTests.Host
@@ -21,12 +22,13 @@ namespace UnitTests.Host
         {
             //arrange
             var serviceCollection = new ServiceCollection();
+            var optionsMock = new Mock<IOptions<CustomerApiClient.Settings>>();
 
             //act
-            serviceCollection.AddPurchaseOrderProcessor();
+            serviceCollection.AddPurchaseOrderProcessor(optionsMock.Object);
 
             //assert
-            serviceCollection.Count.Should().Be(1);
+            serviceCollection.Count.Should().Be(21);
         }
         
         [Fact]

@@ -3,7 +3,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting.Internal;
 using PurchaseOrderProcessor.Api;
 using PurchaseOrderProcessor.Domain.Clients;
 using PurchaseOrderProcessor.Domain.Mediation;
@@ -27,12 +29,22 @@ namespace UnitTests.Host
             }
         }
 
-        [Fact]
-        public void ConfigureServices_ExpectsSuccess()
+        [Theory]
+        [InlineData("Development")]
+        [InlineData("Staging")]
+        [InlineData("Docker")]
+        [InlineData("Production")]
+        [InlineData("Other")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void ConfigureServices_ExpectsSuccess(string environment)
         {
             //arrange
             var serviceCollection = new ServiceCollection();
-            var startup = new Startup();
+            var appSettings = new Dictionary<string, string> { { "CustomerApi:BaseUrl", "http://localhost:3000" } };
+            var config = new ConfigurationBuilder().AddInMemoryCollection(appSettings).Build();
+            var env = new HostingEnvironment { EnvironmentName = environment, ContentRootPath = "/"};
+            var startup = new Startup(config, env);
 
             //act
             startup.ConfigureServices(serviceCollection);
@@ -56,9 +68,8 @@ namespace UnitTests.Host
         public void Configure_ExpectsSuccess(string environment)
         {
             //arrange
-            var serviceCollection = new ServiceCollection();
             var hostMock = new MockWebApplicationFactory<Startup>(environment);
-            
+
             var app = new ApplicationBuilder(hostMock.ServiceProvider);
 
             //act
