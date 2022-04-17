@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
 using PurchaseOrderProcessor.Domain.Mediation;
 using PurchaseOrderProcessor.Infrastructure;
 using PurchaseOrderProcessor.Infrastructure.Clients;

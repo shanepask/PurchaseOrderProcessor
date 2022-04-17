@@ -28,7 +28,7 @@ namespace PurchaseOrderProcessor.Domain.Mediation
         public async Task<ShippingSlip> ProcessAsync(int customerId, PurchaseOrder purchaseOrder, CancellationToken cancellationToken = default)
         {
             var context = new Context();
-            foreach (var lineItem in purchaseOrder.Items)
+            foreach (var lineItem in purchaseOrder?.Items ?? Array.Empty<string>())
             {
                 foreach (var itemHandler in _lineItemHandlers)
                     await itemHandler.HandleAsync(customerId, lineItem, context, cancellationToken);

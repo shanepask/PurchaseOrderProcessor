@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using PurchaseOrderProcessor.Domain.Mediation;
@@ -64,14 +66,20 @@ namespace PurchaseOrderProcessor.Api.Controllers
         /// <param name="mediator"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>Nothing or a shipping slip for the physical products in the purchase order.</returns>
+        /// <response code="200">The purchase order has been processed successfully and a shipping slip has been returned.</response>
+        /// <response code="204">The purchase order has been processed successfully and no shipping slip is required.</response>
+        /// <response code="400">The request could not be processed as it was not a valid purchase order.</response>
+        /// <response code="415">The content type required was not supported.</response>
+        /// <response code="500">The server encountered a problem processing the purchase order, it is assumed the purchase order has not been processed.</response>
         [HttpPost]
         [ProducesResponseType(typeof(ShippingSlip), 200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(415)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> Post([FromBody] PurchaseOrder purchaseOrder, [FromRoute] int customerId, [FromServices] IMediator mediator, CancellationToken cancellationToken)
         {
-            using var sc = _logger.BeginScope("Process purchase order");
+            using var sc = _logger.BeginScope("Process purchase order request {correlationId}", HttpContext?.TraceIdentifier);
             _logger.LogInformation("Processing purchase order: {purchaseOrderId}", purchaseOrder.Id);
             try
             {
@@ -82,7 +90,7 @@ namespace PurchaseOrderProcessor.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Purchase order processing failed: {purchaseOrderId}", purchaseOrder.Id);
-                throw;
+                throw new HttpRequestException("An internal error occurred.", e, HttpStatusCode.InternalServerError);
             }
         }
     }

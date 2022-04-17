@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using AutoFixture;
 using FluentAssertions;
@@ -97,7 +98,7 @@ namespace UnitTests.Controller
             var act = ()=> controller.Post(po, customerId, mediatorMock.Object, CancellationToken.None);
 
             //assert
-            await act.Should().ThrowAsync<TestException>();
+            await act.Should().ThrowAsync<HttpRequestException>();
             loggerMock.Verify(l => l.Log(LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
