@@ -8,6 +8,9 @@ public class PhysicalProductHandler : ILineItemHandler
 {
     public Task HandleAsync(int customerId, string lineItem, IContext context, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        if (LineItemHelper.IsPhysicalProduct(lineItem))
+            context.PhysicalProducts.Add(lineItem);
+
+        return Task.CompletedTask;
     }
 }

@@ -1,40 +1,69 @@
+using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using PurchaseOrderProcessor.Domain;
+using PurchaseOrderProcessor.Api.SwaggerFilters;
 using PurchaseOrderProcessor.Domain.Handlers;
+using PurchaseOrderProcessor.Infrastructure;
+using PurchaseOrderProcessor.Infrastructure.Clients;
 
 namespace PurchaseOrderProcessor.Api
 {
+    /// <summary>
+    /// Startup process for this app.
+    /// </summary>
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        internal static string GeneratedContentLocation { get; } = Assembly.GetEntryAssembly()?.Location.Replace(".dll", ".xml");
+
+        private readonly IConfiguration _configuration;
+
+        /// <summary>
+        /// Create a new startup class for the environment specified.
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="env"></param>
+        public Startup(IConfiguration configuration, IHostEnvironment env)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddConfiguration(configuration)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
+            _configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// Configure services
+        /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PurchaseOrderProcessor.Api", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PurchaseOrderProcessor.Api", Version = "v1", Description = "An API to handle customer purchase orders."});
+                c.TagActionsBy(a => new List<string> { a.GroupName });
+                c.DocInclusionPredicate((_, _) => true);
+                c.IncludeXmlComments(GeneratedContentLocation);
+                c.OperationFilter<SwaggerExamplesFilter>();
             });
 
-            services.AddPurchaseOrderProcessor()
+            var customerApiOptions = Options.Create(_configuration.GetRequiredSection("CustomerApi").Get<CustomerApiClient.Settings>());
+            services.AddPurchaseOrderProcessor(customerApiOptions)
                 .AddHandler<MembershipHandler>()
                 .AddHandler<PhysicalProductHandler>()
                 .AddHandler<ShippingSlipHandler>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// Configure app host
+        /// </summary>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
