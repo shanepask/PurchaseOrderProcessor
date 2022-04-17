@@ -1,4 +1,5 @@
 
+
 # Fun Books And Videos
 *This system will strictly cover the elements described in the requirements PDF, no new features will be invented.* 
 ## Assumptions
@@ -93,7 +94,7 @@ paths:
           description: The PO is invalid or malformed.
 ```
 ## PO Processor Design
-On startup each handler that exists in the assembly or its dependencies will register with the mediator.  The mediator will create a context that each handler will update.  The mediator iterate through its handlers that accept line items first, then move on to those that only process the context.
+On startup each handler will register.  The mediator will create a context that each handler will update.  The mediator iterate through the handlers that accept line items first, then move on to those that only process the context.
 
 The solution will follow the Clean Architecture approach. (https://www.c-sharpcorner.com/article/what-is-clean-architecture/)
 
@@ -132,7 +133,7 @@ classDiagram
 	Controller..IMediator
 	class Controller {
 		<<Service>>
-		+Post(int, PurchaseOrder) ActionResult
+		+Post(int, PurchaseOrder, IMediator) ActionResult
 	}
 	
 	class PurchaseOrder {
@@ -162,7 +163,7 @@ classDiagram
 	IMediator--|>Mediator
 	class Mediator {
 		<<service>>
-		+ctor(ServiceProvider)
+		+ctor(IEnumerable<IHandler>)
 	}
 
 	Mediator..IContext
@@ -248,11 +249,10 @@ An interface for the context is used to ensure we only depend on abstractions.
 		private readonly ICustomerApiClient _customerApiClient;
 		public MembershipHandler(ICustomerApiClient customerApiClient) => _customerApiClient = customerApiClient;
 		
-		public Task HandleAsync(int customerId, string lineItem, IContext context)
+		public async Task HandleAsync(int customerId, string lineItem, IContext context)
 		{
 			if (LineItemHelper.IsMembershipProduct(lineItem))
-				_customerApiClient.MembershipUpdateAsync(customerId, lineItem);
-			return Task.CompletedTask;
+				await _customerApiClient.MembershipUpdateAsync(customerId, lineItem);
 		}
 	}
 
@@ -269,63 +269,15 @@ An interface for the context is used to ensure we only depend on abstractions.
 						Description = p.Key,
 						Quantity = p.Count()
 					});
-				context.ShippingSlip = new()
-				{
-					CustomerId = customerId,
-					Items = shippingSlipItems
-				};
 			}
+
+			context.ShippingSlip = new()
+			{
+				CustomerId = customerId,
+				Items = shippingSlipItems
+			};
 
 			return Task.CompletedTask;
 		}
-	}
-```
-
-### Supporting classes
-```csharp
-
-	public interface IContext
-	{
-		public List<string> PhysicalProducts { get; }
-		public ShippingSlip? ShippingSlip { get; set; }
-	}
-	public interface ILineItemHandler
-	{
-		public Task HandleAsync(int customerId, string lineItem, IContext context);
-	}
-	public interface IResultHandler
-	{
-		public Task HandleAsync(int customerId, IContext context);
-	}
-	public interface ICustomerApiClient
-	{
-		public Task MembershipUpdateAsync(int customerId, string membership);
-	}
-
-	internal static class LineItemHelper
-	{
-		private static readonly IEnumerable<string> MembershipProducts = new[] {"Book Club Membership", "Video Club Membership", "Premium Membership"};
-
-		public static bool IsPhysicalProduct(string lineItem) => !IsMembershipProduct(lineItem);
-
-		public static bool IsMembershipProduct(string lineItem) => MembershipProducts.Contains(lineItem);
-	}
-
-	class Context : IContext
-	{
-		public List<string> PhysicalProducts { get; } = new();
-		public ShippingSlip? ShippingSlip { get; set; }
-	}
-
-	public record ShippingSlip
-	{
-		public int CustomerId { get; init; }
-		public IEnumerable<ShippingSlipItem> Items { get; init; } = Array.Empty<ShippingSlipItem>();
-	}
-
-	public record ShippingSlipItem
-	{
-		public string Description { get; init; }
-		public int Quantity { get; init; }
 	}
 ```
